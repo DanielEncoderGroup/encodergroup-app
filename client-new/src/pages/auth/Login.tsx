@@ -29,7 +29,7 @@ const Login: React.FC = () => {
     onSubmit: async (values, { setSubmitting }) => {
       try {
         await login(values.email, values.password);
-        navigate('/dashboard');
+        navigate('/app/dashboard');
       } catch (err) {
         // El error se maneja en el contexto de autenticación
         console.error('Error during login:', err);

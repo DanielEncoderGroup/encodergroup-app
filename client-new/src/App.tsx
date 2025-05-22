@@ -45,6 +45,7 @@ function App() {
         {/* Protected routes - all under /app prefix */}
         <Route path="/app" element={<PrivateRoute element={<Layout />} />}>
           <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="projects" element={<ProjectsList />} />
           <Route path="projects/new" element={<ProjectForm />} />
           <Route path="projects/:id" element={<ProjectDetail />} />

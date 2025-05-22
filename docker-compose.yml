@@ -36,6 +36,7 @@ services:
       - SMTP_PASSWORD=.3H*qU8MI&?g
       - SMTP_SSL=true
       - CLIENT_URL=http://localhost
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
     networks:
       - encodergroup-network
     restart: unless-stopped

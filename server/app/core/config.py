@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     SMTP_USER: str = os.getenv("SMTP_USER", "")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
     SMTP_SSL: bool = os.getenv("SMTP_SSL", "True").lower() in ("true", "1", "t")
+    SMTP_VERIFY_SSL: bool = os.getenv("SMTP_VERIFY_SSL", "True").lower() in ("true", "1", "t")
     
     # Legacy SendGrid settings (kept for backwards compatibility)
     SENDGRID_API_KEY: str = os.getenv("SENDGRID_API_KEY", "")
