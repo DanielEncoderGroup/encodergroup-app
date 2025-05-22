@@ -1,279 +1,261 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-
-interface Request {
-  id: string;
-  title: string;
-  description: string;
-  amount: number;
-  status: string;
-  createdAt: string;
-  projectId?: string;
-  projectName?: string;
-  requestType: string;
-  user: {
-    id: string;
-    name: string;
-  };
-}
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { requestService } from '../../services/requestService';
+import { RequestSummary, RequestStatus, RequestStatusColors, RequestStatusLabels } from '../../types/request';
+import { Icon } from '../../components/ui';
+import { toast } from 'react-hot-toast';
 
 const RequestsList: React.FC = () => {
-  const [requests, setRequests] = useState<Request[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [requests, setRequests] = useState<RequestSummary[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<RequestStatus | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalRequests, setTotalRequests] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const itemsPerPage = 10;
 
-  // Simular carga de datos
+  const isAdmin = user?.role === 'admin';
+
+  // Cargar solicitudes
+  const loadRequests = async (reset = false) => {
+    try {
+      setLoading(true);
+      const page = reset ? 0 : currentPage;
+      
+      // Preparar parámetros de filtrado
+      const status = selectedStatus !== 'all' ? selectedStatus : undefined;
+      const search = searchTerm.trim() || undefined;
+      
+      const response = await requestService.getAll(
+        status as RequestStatus | undefined,
+        undefined,
+        search,
+        page * itemsPerPage,
+        itemsPerPage
+      );
+      
+      if (reset) {
+        setRequests(response.requests);
+        setCurrentPage(0);
+      } else {
+        setRequests(prev => [...prev, ...response.requests]);
+      }
+      
+      setTotalRequests(response.total);
+      setHasMore(response.total > (page + 1) * itemsPerPage);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading requests:', error);
+      toast.error('Error al cargar las solicitudes');
+      setLoading(false);
+    }
+  };
+
+  // Cargar solicitudes cuando cambien los filtros
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setRequests([
-        {
-          id: '1',
-          title: 'Viaje a conferencia de tecnología',
-          description: 'Gastos de transporte y alojamiento para conferencia en Madrid',
-          amount: 1200,
-          status: 'pending',
-          createdAt: '2023-05-10T08:30:00Z',
-          projectId: '1',
-          projectName: 'Implementación ERP',
-          requestType: 'travel',
-          user: {
-            id: '1',
-            name: 'Carlos Rodríguez'
-          }
-        },
-        {
-          id: '2',
-          title: 'Capacitación equipo desarrollo',
-          description: 'Gastos de capacitación para el equipo de desarrollo en nuevas tecnologías',
-          amount: 800,
-          status: 'approved',
-          createdAt: '2023-05-05T10:15:00Z',
-          projectId: '2',
-          projectName: 'Migración a la nube',
-          requestType: 'training',
-          user: {
-            id: '2',
-            name: 'Ana Gómez'
-          }
-        },
-        {
-          id: '3',
-          title: 'Materiales para oficina',
-          description: 'Compra de materiales y equipos para nuevas estaciones de trabajo',
-          amount: 350,
-          status: 'rejected',
-          createdAt: '2023-05-02T14:45:00Z',
-          requestType: 'supplies',
-          user: {
-            id: '3',
-            name: 'Miguel Sánchez'
-          }
-        },
-        {
-          id: '4',
-          title: 'Viaje a reunión con cliente',
-          description: 'Gastos de transporte y comida para reunión con cliente en Barcelona',
-          amount: 250,
-          status: 'completed',
-          createdAt: '2023-04-28T09:00:00Z',
-          projectId: '3',
-          projectName: 'Desarrollo app móvil',
-          requestType: 'travel',
-          user: {
-            id: '4',
-            name: 'Laura Torres'
-          }
-        }
-      ]);
-      setIsLoading(false);
-    }, 1000);
+    loadRequests(true);
+  }, [selectedStatus]);
 
-    return () => clearTimeout(timer);
-  }, []);
+  // Manejar búsqueda
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    loadRequests(true);
+  };
 
-  // Filtrar solicitudes
-  const filteredRequests = requests.filter((request) => {
-    // Filtrar por término de búsqueda
-    const matchesSearch = request.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          request.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Filtrar por estado
-    const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
+  // Cargar más solicitudes
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      setCurrentPage(prev => prev + 1);
+      loadRequests(false);
+    }
+  };
 
-  const getStatusBadgeClass = (status: string) => {
+  // Función para obtener el icono de estado
+  const getStatusIcon = (status: RequestStatus) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'approved':
-        return 'bg-green-100 text-green-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      case 'completed':
-        return 'bg-gray-100 text-gray-800';
+      case RequestStatus.DRAFT:
+        return <Icon name="ClockIcon" className="text-gray-500" />;
+      case RequestStatus.IN_PROCESS:
+        return <Icon name="ArrowRightIcon" className="text-blue-500" />;
+      case RequestStatus.IN_REVIEW:
+        return <Icon name="MagnifyingGlassIcon" className="text-yellow-500" />;
+      case RequestStatus.APPROVED:
+        return <Icon name="CheckCircleIcon" className="text-green-500" />;
+      case RequestStatus.REJECTED:
+        return <Icon name="XCircleIcon" className="text-red-500" />;
       default:
-        return 'bg-gray-100 text-gray-800';
+        return <Icon name="ClockIcon" className="text-gray-500" />;
     }
   };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'Pendiente';
-      case 'approved':
-        return 'Aprobada';
-      case 'rejected':
-        return 'Rechazada';
-      case 'completed':
-        return 'Completada';
-      default:
-        return status;
-    }
-  };
-
-  const getRequestTypeText = (type: string) => {
-    switch (type) {
-      case 'travel':
-        return 'Viaje';
-      case 'training':
-        return 'Capacitación';
-      case 'supplies':
-        return 'Suministros';
-      default:
-        return type;
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="py-6 px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h2 className="text-2xl font-bold text-gray-900">Solicitudes de viáticos</h2>
+      <div className="sm:flex sm:items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Solicitudes</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Lista de todas las solicitudes de viáticos y gastos.
+            {isAdmin
+              ? 'Gestiona y revisa las solicitudes de los clientes'
+              : 'Administra tus solicitudes y revisa su estado'}
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Link
-            to="/app/requests/new"
-            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        {!isAdmin && (
+          <button
+            onClick={() => navigate('/app/requests/new')}
+            className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
+            <Icon name="PlusIcon" className="mr-2" />
             Nueva solicitud
-          </Link>
-        </div>
+          </button>
+        )}
       </div>
 
-      {/* Filtros y búsqueda */}
-      <div className="mt-6 flex flex-col sm:flex-row sm:space-x-4">
-        <div className="mb-4 sm:mb-0 w-full sm:w-64">
-          <label htmlFor="search" className="sr-only">
-            Buscar solicitudes
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-              </svg>
+      {/* Filtros */}
+      <div className="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6 mb-6">
+        <div className="md:flex md:items-center md:justify-between">
+          <div className="flex items-center space-x-4">
+            <Icon name="FunnelIcon" className="text-gray-400" />
+            <div>
+              <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700">
+                Estado
+              </label>
+              <select
+                id="status-filter"
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value as RequestStatus | 'all')}
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+              >
+                <option value="all">Todos</option>
+                {Object.entries(RequestStatusLabels).map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+              </select>
             </div>
-            <input
-              id="search"
-              name="search"
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Buscar solicitudes"
-              type="search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
           </div>
-        </div>
-        <div className="w-full sm:w-auto">
-          <label htmlFor="status-filter" className="sr-only">
-            Filtrar por estado
-          </label>
-          <select
-            id="status-filter"
-            name="status-filter"
-            className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">Todos los estados</option>
-            <option value="pending">Pendientes</option>
-            <option value="approved">Aprobadas</option>
-            <option value="rejected">Rechazadas</option>
-            <option value="completed">Completadas</option>
-          </select>
+
+          <div className="mt-4 md:mt-0">
+            <form onSubmit={handleSearch} className="flex rounded-md shadow-sm">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar solicitudes..."
+                className="focus:ring-blue-500 focus:border-blue-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
+              />
+              <button
+                type="submit"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-r-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <Icon name="MagnifyingGlassIcon" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
       {/* Lista de solicitudes */}
-      <div className="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
-        <ul role="list" className="divide-y divide-gray-200">
-          {filteredRequests.length > 0 ? (
-            filteredRequests.map((request) => (
+      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+        {loading && requests.length === 0 ? (
+          <div className="py-12 flex justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : requests.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="text-gray-500">No hay solicitudes que mostrar</p>
+            {!isAdmin && (
+              <button
+                onClick={() => navigate('/app/requests/new')}
+                className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <Icon name="PlusIcon" className="mr-2" />
+                Crear nueva solicitud
+              </button>
+            )}
+          </div>
+        ) : (
+          <ul className="divide-y divide-gray-200">
+            {requests.map((request) => (
               <li key={request.id}>
-                <Link to={`/app/requests/${request.id}`} className="block hover:bg-gray-50">
+                <Link
+                  to={`/app/requests/${request.id}`}
+                  className="block hover:bg-gray-50"
+                >
                   <div className="px-4 py-4 sm:px-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <p className="text-sm font-medium text-indigo-600 truncate">
+                        {getStatusIcon(request.status)}
+                        <p className="ml-2 text-sm font-medium text-blue-600 truncate">
                           {request.title}
                         </p>
-                        <div className="ml-2 flex-shrink-0 flex">
-                          <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(request.status)}`}>
-                            {getStatusText(request.status)}
-                          </p>
-                        </div>
                       </div>
                       <div className="ml-2 flex-shrink-0 flex">
-                        <p className="text-sm font-medium text-gray-900">${request.amount.toLocaleString()}</p>
+                        <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${RequestStatusColors[request.status]}-100 text-${RequestStatusColors[request.status]}-800`}>
+                          {request.statusLabel}
+                        </p>
                       </div>
                     </div>
                     <div className="mt-2 sm:flex sm:justify-between">
                       <div className="sm:flex">
-                        <p className="flex items-center text-sm text-gray-500">
-                          <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h6v4H7V5zm8 8v2h1v1H4v-1h1v-2a1 1 0 011-1h8a1 1 0 011 1zM9 5h2v4H9V5z" clipRule="evenodd" />
-                          </svg>
-                          {request.projectName || 'Sin proyecto asociado'}
-                        </p>
-                        <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                          <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                          </svg>
-                          {getRequestTypeText(request.requestType)}
+                        <p className="flex items-center text-sm text-gray-500 truncate">
+                          {request.description.substring(0, 100)}
+                          {request.description.length > 100 ? '...' : ''}
                         </p>
                       </div>
                       <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                        </svg>
-                        <p>
-                          {new Date(request.createdAt).toLocaleDateString()} por {request.user.name}
-                        </p>
+                        <div className="flex space-x-4">
+                          {request.amount && (
+                            <span className="flex items-center">
+                              <Icon name="CurrencyDollarIcon" className="flex-shrink-0 mr-1.5 text-gray-400" />
+                              ${request.amount.toLocaleString()}
+                            </span>
+                          )}
+                          {request.tags.length > 0 && (
+                            <span className="flex items-center">
+                              <Icon name="TagIcon" className="flex-shrink-0 mr-1.5 text-gray-400" />
+                              {request.tags.slice(0, 2).join(', ')}
+                              {request.tags.length > 2 ? ', ...' : ''}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
+                    {isAdmin && request.client && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500">
+                          Cliente: {request.client.firstName} {request.client.lastName}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </Link>
               </li>
-            ))
-          ) : (
-            <li className="px-4 py-4 sm:px-6 text-center text-gray-500">
-              No se encontraron solicitudes que coincidan con los criterios de búsqueda.
-            </li>
-          )}
-        </ul>
+            ))}
+          </ul>
+        )}
+
+        {/* Botón de cargar más */}
+        {hasMore && (
+          <div className="px-4 py-3 bg-gray-50 text-center sm:px-6">
+            <button
+              onClick={loadMore}
+              disabled={loading}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              {loading ? (
+                <div className="mr-2 h-4 w-4 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin"></div>
+              ) : (
+                <Icon name="ArrowRightIcon" className="mr-2 text-gray-400" />
+              )}
+              Cargar más
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

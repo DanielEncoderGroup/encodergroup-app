@@ -15,6 +15,7 @@ from app.models.user import (
     UserLogin,
     ForgotPassword,
     ResetPassword,
+    UserRole,
 )
 from app.core.security import (
     verify_password,
@@ -57,10 +58,12 @@ async def register_user(user_in: UserCreate = Body(...)) -> Any:
         "lastName": user_in.lastName,
         "email": user_in.email,
         "password": get_password_hash(user_in.password),
+        "role": UserRole.CLIENT,  # Por defecto, todos los usuarios nuevos son clientes
         "emailVerified": False,
         "emailVerificationToken": verification_token,
         "emailVerificationExpire": token_expiry,
         "createdAt": datetime.utcnow(),
+        "updatedAt": None,
     }
 
     result = await db.users.insert_one(user_data)
@@ -335,5 +338,6 @@ async def get_current_user_info(current_user=Depends(get_current_user)) -> Any:
             "firstName": current_user.firstName if hasattr(current_user, 'firstName') else getattr(current_user, 'first_name', ''),
             "lastName": current_user.lastName if hasattr(current_user, 'lastName') else getattr(current_user, 'last_name', ''),
             "email": current_user.email,
+            "role": current_user.role,  # Incluir el rol del usuario en la respuesta
         },
     }

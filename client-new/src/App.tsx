@@ -5,6 +5,8 @@ import { Toaster } from 'react-hot-toast';
 // Layout components
 import Layout from './components/layout/Layout';
 import PrivateRoute from './components/routes/PrivateRoute';
+import AdminRoute from './components/routes/AdminRoute';
+import ClientRoute from './components/routes/ClientRoute';
 
 // Landing page
 import LandingPage from './pages/landing/LandingPage';
@@ -22,6 +24,8 @@ import ProjectsList from './pages/projects/ProjectsList';
 import ProjectForm from './pages/projects/ProjectForm';
 import ProjectDetail from './pages/projects/ProjectDetail';
 import MeetingsScheduler from './pages/meetings/MeetingsScheduler';
+import RequestsList from './pages/requests/RequestsList';
+import RequestDetail from './pages/requests/RequestDetail';
 import RequestForm from './pages/requests/RequestForm';
 import Statistics from './pages/dashboard/Statistics';
 import Profile from './pages/profile/Profile';
@@ -51,7 +55,14 @@ function App() {
           <Route path="projects/:id" element={<ProjectDetail />} />
           <Route path="projects/:id/edit" element={<ProjectForm />} />
           <Route path="meetings" element={<MeetingsScheduler />} />
-          <Route path="requests" element={<RequestForm />} />
+          <Route path="requests" element={<RequestsList />} />
+          <Route path="requests/:id" element={<RequestDetail />} />
+          
+          {/* Rutas protegidas para clientes */}
+          <Route element={<ClientRoute />}>
+            <Route path="requests/new" element={<RequestForm />} />
+            <Route path="requests/edit/:id" element={<RequestForm />} />
+          </Route>
           <Route path="stats" element={<Statistics />} />
           <Route path="profile" element={<Profile />} />
         </Route>

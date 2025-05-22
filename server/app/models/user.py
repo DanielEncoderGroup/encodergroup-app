@@ -14,18 +14,29 @@ def validate_object_id(v: Any) -> ObjectId:
 # Tipo anotado para ObjectId
 PyObjectId = Annotated[ObjectId, BeforeValidator(validate_object_id)]
 
+# Definición de roles disponibles
+class UserRole:
+    ADMIN = "admin"
+    CLIENT = "client"
+    
+    @classmethod
+    def all_roles(cls):
+        return [cls.ADMIN, cls.CLIENT]
+
 class UserModel(BaseModel):
     id: Optional[PyObjectId] = Field(default=None, alias="_id")
     firstName: str
     lastName: str
     email: EmailStr
     password: str
+    role: str = Field(default=UserRole.CLIENT)  # Por defecto, todos los usuarios son clientes
     resetPasswordToken: Optional[str] = None
     resetPasswordExpire: Optional[datetime] = None
     emailVerified: bool = False
     emailVerificationToken: Optional[str] = None
     emailVerificationExpire: Optional[datetime] = None
     createdAt: datetime = Field(default_factory=datetime.utcnow)
+    updatedAt: Optional[datetime] = None
     
     # Configuración unificada usando model_config (Pydantic v2)
     model_config = {
@@ -55,6 +66,7 @@ class UserPublic(BaseModel):
     firstName: str
     lastName: str
     email: EmailStr
+    role: str
     createdAt: datetime
 
     model_config = {
@@ -64,6 +76,7 @@ class UserPublic(BaseModel):
                 "firstName": "John",
                 "lastName": "Doe",
                 "email": "john@example.com",
+                "role": "client",
                 "createdAt": "2023-08-28T12:34:56.789000"
             }
         }

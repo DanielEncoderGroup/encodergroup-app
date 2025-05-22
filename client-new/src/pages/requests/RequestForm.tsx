@@ -1,283 +1,352 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-
-interface Project {
-  id: string;
-  name: string;
-}
-
-interface RequestFormValues {
-  title: string;
-  description: string;
-  amount: string;
-  requestType: string;
-  projectId: string;
-}
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { requestService } from '../../services/requestService';
+import { RequestCreate, RequestUpdate, RequestDetail } from '../../types/request';
+import { Formik, Form, Field, ErrorMessage, FormikProps } from 'formik';
+import { toast } from 'react-hot-toast';
+import { Icon } from '../../components/ui';
+import RequestSchema from '../../validations/requestValidation';
 
 const RequestForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [initialValues, setInitialValues] = useState<RequestFormValues>({
-    title: '',
-    description: '',
-    amount: '',
-    requestType: 'travel',
-    projectId: ''
-  });
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [request, setRequest] = useState<RequestDetail | null>(null);
+  const [newTag, setNewTag] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const isEditMode = !!id;
 
-  const isEditMode = Boolean(id);
-
-  // Validación con Yup
-  const validationSchema = Yup.object({
-    title: Yup.string().required('El título es obligatorio'),
-    description: Yup.string().required('La descripción es obligatoria'),
-    amount: Yup.number()
-      // @ts-ignore: typeError existe en Yup 0.32.11 pero no en las definiciones de tipos
-      .typeError('El monto debe ser un número')
-      .positive('El monto debe ser positivo')
-      .required('El monto es obligatorio'),
-    requestType: Yup.string().required('El tipo de solicitud es obligatorio'),
-    projectId: Yup.string()
-  });
-
-  // Simular carga de proyectos
+  // Comprobar si el usuario es cliente
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setProjects([
-        { id: '1', name: 'Implementación ERP' },
-        { id: '2', name: 'Migración a la nube' },
-        { id: '3', name: 'Desarrollo app móvil' },
-        { id: '4', name: 'Actualización infraestructura' }
-      ]);
-    }, 500);
+    if (!user || user.role !== 'client') {
+      toast.error('No tienes permiso para acceder a esta página');
+      navigate('/app/dashboard');
+    }
+  }, [user, navigate]);
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Cargar datos si estamos en modo edición
+  // Cargar datos de la solicitud si estamos en modo edición
   useEffect(() => {
     if (isEditMode) {
-      setIsLoading(true);
-      // Simulación de carga de datos de la solicitud para edición
-      setTimeout(() => {
-        setInitialValues({
-          title: 'Viaje a conferencia de tecnología',
-          description: 'Gastos de transporte y alojamiento para conferencia en Madrid sobre nuevas tecnologías cloud.',
-          amount: '1200',
-          requestType: 'travel',
-          projectId: '1'
-        });
-        setIsLoading(false);
-      }, 1000);
+      const fetchRequest = async () => {
+        try {
+          setLoading(true);
+          const response = await requestService.getById(id);
+          
+          // Verificar que la solicitud pertenece al usuario actual y está en borrador
+          if (response.request.clientId !== user?.id) {
+            toast.error('No tienes permiso para editar esta solicitud');
+            navigate('/app/requests');
+            return;
+          }
+          
+          if (response.request.status !== 'draft') {
+            toast.error('Solo puedes editar solicitudes en estado de borrador');
+            navigate(`/app/requests/${id}`);
+            return;
+          }
+          
+          setRequest(response.request);
+          setTags(response.request.tags || []);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error loading request:', error);
+          toast.error('Error al cargar la solicitud');
+          navigate('/app/requests');
+        }
+      };
+      
+      fetchRequest();
     }
-  }, [isEditMode, id]);
+  }, [id, isEditMode, user?.id, navigate]);
 
-  // Configuración de Formik
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues,
-    validationSchema,
-    onSubmit: async (values) => {
-      setIsLoading(true);
-      try {
-        // Simulación de envío de datos
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log('Datos enviados:', values);
-        navigate('/app/requests');
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setIsLoading(false);
+  // Valores iniciales para el formulario
+  const initialValues: RequestCreate = {
+    title: request?.title || '',
+    description: request?.description || '',
+    amount: request?.amount || undefined,
+    dueDate: request?.dueDate ? request.dueDate.split('T')[0] : '',
+    tags: tags
+  };
+
+  // Función para agregar una etiqueta
+  const handleAddTag = () => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      setTags([...tags, newTag.trim()]);
+      setNewTag('');
+    }
+  };
+
+  // Función para eliminar una etiqueta
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  // Función para guardar la solicitud
+  // Validación manual para complementar la validación básica de Yup
+  const validateRequestData = (values: RequestCreate) => {
+    const errors: Record<string, string> = {};
+    
+    // Validar monto si existe
+    if (values.amount) {
+      const num = parseFloat(values.amount.toString());
+      if (isNaN(num)) {
+        errors.amount = 'El monto debe ser un número válido';
+      } else if (num < 0) {
+        errors.amount = 'El monto no puede ser negativo';
       }
     }
-  });
+    
+    // Validar fecha si existe
+    if (values.dueDate) {
+      const date = new Date(values.dueDate);
+      if (isNaN(date.getTime())) {
+        errors.dueDate = 'La fecha debe ser válida';
+      } else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (date < today) {
+          errors.dueDate = 'La fecha no puede ser en el pasado';
+        }
+      }
+    }
+    
+    return errors;
+  };
 
-  // @ts-ignore: 'dirty' existe en Formik pero TypeScript no lo reconoce correctamente
-  if (isLoading && isEditMode && !formik.dirty) {
+  const handleSubmit = async (values: RequestCreate) => {
+    // Validar manualmente
+    const validationErrors = validateRequestData(values);
+    if (Object.keys(validationErrors).length > 0) {
+      // Mostrar errores
+      for (const [field, message] of Object.entries(validationErrors)) {
+        toast.error(message);
+      }
+      return;
+    }
+    
+    // Incluir etiquetas
+    const requestData = { ...values, tags };
+
+    try {
+      setSaving(true);
+      
+      if (isEditMode) {
+        // Actualizar solicitud existente
+        await requestService.update(id, requestData as RequestUpdate);
+        toast.success('Solicitud actualizada correctamente');
+      } else {
+        // Crear nueva solicitud
+        const response = await requestService.create(requestData);
+        toast.success('Solicitud creada correctamente');
+        
+        // Navegar a la solicitud creada
+        if (response.requestId) {
+          navigate(`/app/requests/${response.requestId}`);
+          return;
+        }
+      }
+      
+      // Volver a la lista de solicitudes o a la solicitud editada
+      navigate(isEditMode ? `/app/requests/${id}` : '/app/requests');
+    } catch (error) {
+      console.error('Error saving request:', error);
+      toast.error('Error al guardar la solicitud');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+      <div className="py-12 flex justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
     <div className="py-6 px-4 sm:px-6 lg:px-8">
-      <div className="md:flex md:items-center md:justify-between mb-6">
-        <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-            {isEditMode ? 'Editar solicitud' : 'Nueva solicitud'}
-          </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            {isEditMode
-              ? 'Actualiza la información de la solicitud existente'
-              : 'Crea una nueva solicitud de viáticos'}
-          </p>
-        </div>
+      {/* Encabezado */}
+      <div className="mb-6">
+        <button
+          onClick={() => navigate(isEditMode ? `/app/requests/${id}` : '/app/requests')}
+          className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mb-4"
+        >
+          <Icon name="ChevronLeftIcon" className="mr-1" />
+          Volver
+        </button>
+        
+        <h1 className="text-2xl font-bold text-gray-900">
+          {isEditMode ? 'Editar solicitud' : 'Nueva solicitud'}
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          {isEditMode
+            ? 'Actualiza los detalles de tu solicitud'
+            : 'Crea una nueva solicitud para enviar al equipo administrativo'}
+        </p>
       </div>
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <form onSubmit={formik.handleSubmit}>
-          <div className="px-4 py-5 sm:p-6">
-            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              <div className="sm:col-span-6">
+      {/* Formulario */}
+      <div className="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
+        <Formik
+          initialValues={initialValues}
+          validationSchema={RequestSchema}
+          onSubmit={handleSubmit}
+          enableReinitialize
+        >
+          {(formikProps) => {
+            // Desestructuramos los props de Formik que necesitamos
+            const { values, setFieldValue } = formikProps;
+            // Formik incluye estas propiedades para control de estado del formulario
+            // aunque TypeScript no las reconoce correctamente en algunas versiones
+            return (
+            <Form className="space-y-6">
+              <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                  Título de la solicitud
+                  Título *
                 </label>
                 <div className="mt-1">
-                  <input
+                  <Field
                     type="text"
-                    id="title"
                     name="title"
-                    className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md ${
-                      formik.touched.title && formik.errors.title ? 'border-red-300' : ''
-                    }`}
-                    value={formik.values.title}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
+                    id="title"
+                    placeholder="Título de la solicitud"
+                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
                   />
-                  {formik.touched.title && formik.errors.title && (
-                    <p className="mt-2 text-sm text-red-600">{String(formik.errors.title)}</p>
-                  )}
+                  <ErrorMessage name="title" component="div" className="mt-1 text-sm text-red-600" />
                 </div>
               </div>
 
-              <div className="sm:col-span-6">
+              <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                  Descripción
+                  Descripción *
                 </label>
                 <div className="mt-1">
-                  <textarea
-                    id="description"
+                  <Field
+                    as="textarea"
                     name="description"
-                    rows={3}
-                    className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md ${
-                      formik.touched.description && formik.errors.description ? 'border-red-300' : ''
-                    }`}
-                    value={formik.values.description}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
+                    id="description"
+                    rows={5}
+                    placeholder="Describe detalladamente tu solicitud"
+                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
                   />
-                  {formik.touched.description && formik.errors.description && (
-                    <p className="mt-2 text-sm text-red-600">{String(formik.errors.description)}</p>
-                  )}
+                  <ErrorMessage name="description" component="div" className="mt-1 text-sm text-red-600" />
                 </div>
               </div>
 
-              <div className="sm:col-span-3">
-                <label htmlFor="requestType" className="block text-sm font-medium text-gray-700">
-                  Tipo de solicitud
-                </label>
-                <div className="mt-1">
-                  <select
-                    id="requestType"
-                    name="requestType"
-                    className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md ${
-                      formik.touched.requestType && formik.errors.requestType ? 'border-red-300' : ''
-                    }`}
-                    value={formik.values.requestType}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  >
-                    <option value="travel">Viaje</option>
-                    <option value="training">Capacitación</option>
-                    <option value="supplies">Suministros</option>
-                    <option value="other">Otro</option>
-                  </select>
-                  {formik.touched.requestType && formik.errors.requestType && (
-                    <p className="mt-2 text-sm text-red-600">{String(formik.errors.requestType)}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                  Monto total ($)
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">$</span>
+              <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
+                    Monto (opcional)
+                  </label>
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">$</span>
+                    </div>
+                    <Field
+                      type="number"
+                      name="amount"
+                      id="amount"
+                      step="0.01"
+                      placeholder="0.00"
+                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
+                    />
                   </div>
+                  <ErrorMessage name="amount" component="div" className="mt-1 text-sm text-red-600" />
+                </div>
+
+                <div>
+                  <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700">
+                    Fecha límite (opcional)
+                  </label>
+                  <div className="mt-1">
+                    <Field
+                      type="date"
+                      name="dueDate"
+                      id="dueDate"
+                      className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    />
+                    <ErrorMessage name="dueDate" component="div" className="mt-1 text-sm text-red-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Etiquetas (opcional)
+                </label>
+                <div className="mt-1 flex rounded-md shadow-sm">
                   <input
                     type="text"
-                    id="amount"
-                    name="amount"
-                    className={`focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 sm:text-sm border-gray-300 rounded-md ${
-                      formik.touched.amount && formik.errors.amount ? 'border-red-300' : ''
-                    }`}
-                    placeholder="0.00"
-                    value={formik.values.amount}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    placeholder="Añadir etiqueta"
+                    className="focus:ring-blue-500 focus:border-blue-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddTag();
+                      }
+                    }}
                   />
-                  {formik.touched.amount && formik.errors.amount && (
-                    <p className="mt-2 text-sm text-red-600">{String(formik.errors.amount)}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label htmlFor="projectId" className="block text-sm font-medium text-gray-700">
-                  Proyecto asociado (opcional)
-                </label>
-                <div className="mt-1">
-                  <select
-                    id="projectId"
-                    name="projectId"
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    value={formik.values.projectId}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
+                  <button
+                    type="button"
+                    onClick={handleAddTag}
+                    className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-500 sm:text-sm hover:bg-gray-100"
                   >
-                    <option value="">Seleccionar proyecto</option>
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
+                    <Icon name="PlusCircleIcon" />
+                  </button>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {tags.map((tag, index) => (
+                    <div
+                      key={index}
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    >
+                      <Icon name="TagIcon" size="sm" className="mr-1" />
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="ml-1 flex-shrink-0 h-4 w-4 rounded-full inline-flex items-center justify-center text-blue-400 hover:bg-blue-200 hover:text-blue-500 focus:outline-none focus:bg-blue-500 focus:text-white"
+                      >
+                        <Icon name="XMarkIcon" size="sm" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="sm:col-span-6">
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => navigate(isEditMode ? `/app/requests/${id}` : '/app/requests')}
+                  className="mr-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving || tags.length === 0}
+                  className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  {saving ? (
+                    <div className="inline-flex items-center">
+                      <div className="mr-2 h-4 w-4 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                      Guardando...
                     </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-yellow-700">
-                        Después de crear la solicitud, podrás añadir comprobantes y recibos específicos.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  ) : (
+                    isEditMode ? 'Actualizar solicitud' : 'Crear solicitud'
+                  )}
+                </button>
               </div>
-            </div>
-          </div>
-          <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-            <button
-              type="button"
-              className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-3"
-              onClick={() => navigate('/app/requests')}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={formik.isSubmitting}
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {formik.isSubmitting ? 'Guardando...' : isEditMode ? 'Actualizar' : 'Crear'}
-            </button>
-          </div>
-        </form>
+            </Form>
+          );
+          }}
+        </Formik>
       </div>
     </div>
   );

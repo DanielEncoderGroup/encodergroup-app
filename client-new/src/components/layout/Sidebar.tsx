@@ -20,15 +20,31 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   // Ruta del logo
   const logoIconPath = '/assets/encoder-logo.svg';
   
-  // Elementos de navegación
-  const navigation = [
+  // Elementos de navegación basados en el rol del usuario
+  const baseNavigation = [
     { name: 'Dashboard', href: '/app', iconName: 'HomeIcon' },
     { name: 'Proyectos', href: '/app/projects', iconName: 'DocumentTextIcon' },
     { name: 'Nuevo Proyecto', href: '/app/projects/new', iconName: 'PlusCircleIcon' },
     { name: 'Reuniones', href: '/app/meetings', iconName: 'CalendarIcon' },
-    { name: 'Solicitud', href: '/app/requests', iconName: 'ClipboardDocumentListIcon' },
     { name: 'Estadísticas', href: '/app/stats', iconName: 'ChartBarIcon' },
     { name: 'Mi Perfil', href: '/app/profile', iconName: 'UserIcon' }
+  ];
+
+  // Elementos específicos para administradores
+  const adminNavItems = [
+    { name: 'Gestión de Solicitudes', href: '/app/requests', iconName: 'ClipboardDocumentListIcon' },
+  ];
+
+  // Elementos específicos para clientes
+  const clientNavItems = [
+    { name: 'Mis Solicitudes', href: '/app/requests', iconName: 'ClipboardDocumentListIcon' },
+    { name: 'Nueva Solicitud', href: '/app/requests/new', iconName: 'PlusCircleIcon' },
+  ];
+
+  // Combinar elementos de navegación según el rol
+  const navigation = [
+    ...baseNavigation,
+    ...(user?.role === 'admin' ? adminNavItems : clientNavItems)
   ];
 
   // Cerrar el sidebar con tecla Escape
