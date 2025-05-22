@@ -301,6 +301,472 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Proceso section */}
+      <div id="proceso" className="py-16 bg-gray-50 overflow-hidden lg:py-24">
+        <div className="relative max-w-xl mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl">
+          <div className="relative">
+            <h2 className="text-center text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+              Un proceso claro y orientado a resultados
+            </h2>
+            <p className="mt-4 max-w-3xl mx-auto text-center text-xl text-gray-500">
+              Implementamos un enfoque estructurado que asegura la calidad, transparencia y comunicación constante en cada fase del proyecto.
+            </p>
+          </div>
+
+          <div className="mt-16 relative">
+            {/* Línea vertical de proceso */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-blue-200"></div>
+
+            {/* Paso 1 */}
+            <div className="relative mb-24">
+              <div className="flex items-center justify-center">
+                <div className="absolute z-10 flex items-center justify-center h-12 w-12 rounded-full bg-blue-500 text-white shadow-lg left-1/2 transform -translate-x-1/2">
+                  <span className="font-bold">1</span>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="md:text-right md:pr-12 flex flex-col items-center md:items-end">
+                  <h3 className="text-xl font-bold text-gray-900">Descubrimiento y Análisis</h3>
+                  <p className="mt-2 text-gray-600 max-w-md">
+                    Comprendemos tus necesidades, objetivos de negocio y visión del proyecto. Identificamos usuarios y requerimientos clave para definir el alcance.
+                  </p>
+                </div>
+                <div className="hidden md:block">
+                  <Icon name="MagnifyingGlassIcon" className="h-16 w-16 text-blue-500" />
+                </div>
+              </div>
+            </div>
+
+            {/* Paso 2 */}
+            <div className="relative mb-24">
+              <div className="flex items-center justify-center">
+                <div className="absolute z-10 flex items-center justify-center h-12 w-12 rounded-full bg-blue-500 text-white shadow-lg left-1/2 transform -translate-x-1/2">
+                  <span className="font-bold">2</span>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="hidden md:block md:text-right md:pr-12">
+                  <Icon name="ChartBarIcon" className="h-16 w-16 text-blue-500 ml-auto" />
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                  <h3 className="text-xl font-bold text-gray-900">Planificación Estratégica</h3>
+                  <p className="mt-2 text-gray-600 max-w-md">
+                    Elaboramos una estrategia detallada, definimos arquitectura, seleccionamos tecnologías y creamos un plan de acción con cronograma claro.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Paso 3 */}
+            <div className="relative mb-24">
+              <div className="flex items-center justify-center">
+                <div className="absolute z-10 flex items-center justify-center h-12 w-12 rounded-full bg-blue-500 text-white shadow-lg left-1/2 transform -translate-x-1/2">
+                  <span className="font-bold">3</span>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="md:text-right md:pr-12 flex flex-col items-center md:items-end">
+                  <h3 className="text-xl font-bold text-gray-900">Diseño y Prototipado</h3>
+                  <p className="mt-2 text-gray-600 max-w-md">
+                    Creamos interfaces intuitivas y experiencias de usuario atractivas, con prototipos interactivos para validar antes del desarrollo.
+                  </p>
+                </div>
+                <div className="hidden md:block">
+                  <Icon name="PaintBrushIcon" className="h-16 w-16 text-blue-500" />
+                </div>
+              </div>
+            </div>
+
+            {/* Paso 4 */}
+            <div className="relative mb-24">
+              <div className="flex items-center justify-center">
+                <div className="absolute z-10 flex items-center justify-center h-12 w-12 rounded-full bg-blue-500 text-white shadow-lg left-1/2 transform -translate-x-1/2">
+                  <span className="font-bold">4</span>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="hidden md:block md:text-right md:pr-12">
+                  <Icon name="CodeBracketIcon" className="h-16 w-16 text-blue-500 ml-auto" />
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                  <h3 className="text-xl font-bold text-gray-900">Desarrollo Ágil</h3>
+                  <p className="mt-2 text-gray-600 max-w-md">
+                    Implementamos mediante sprints con metodologías ágiles (Scrum), entregas incrementales y feedback continuo para asegurar calidad.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Paso 5 */}
+            <div className="relative mb-24">
+              <div className="flex items-center justify-center">
+                <div className="absolute z-10 flex items-center justify-center h-12 w-12 rounded-full bg-blue-500 text-white shadow-lg left-1/2 transform -translate-x-1/2">
+                  <span className="font-bold">5</span>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="md:text-right md:pr-12 flex flex-col items-center md:items-end">
+                  <h3 className="text-xl font-bold text-gray-900">Testing y Aseguramiento</h3>
+                  <p className="mt-2 text-gray-600 max-w-md">
+                    Realizamos pruebas exhaustivas funcionales, de seguridad y rendimiento para garantizar una aplicación robusta y libre de errores.
+                  </p>
+                </div>
+                <div className="hidden md:block">
+                  <Icon name="BugAntIcon" className="h-16 w-16 text-blue-500" />
+                </div>
+              </div>
+            </div>
+
+            {/* Paso 6 */}
+            <div className="relative mb-24">
+              <div className="flex items-center justify-center">
+                <div className="absolute z-10 flex items-center justify-center h-12 w-12 rounded-full bg-blue-500 text-white shadow-lg left-1/2 transform -translate-x-1/2">
+                  <span className="font-bold">6</span>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="hidden md:block md:text-right md:pr-12">
+                  <Icon name="RocketLaunchIcon" className="h-16 w-16 text-blue-500 ml-auto" />
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                  <h3 className="text-xl font-bold text-gray-900">Despliegue e Implementación</h3>
+                  <p className="mt-2 text-gray-600 max-w-md">
+                    Desplegamos en producción con CI/CD, garantizando una transición suave, monitoreo y escalabilidad desde el primer día.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Paso 7 */}
+            <div className="relative">
+              <div className="flex items-center justify-center">
+                <div className="absolute z-10 flex items-center justify-center h-12 w-12 rounded-full bg-blue-500 text-white shadow-lg left-1/2 transform -translate-x-1/2">
+                  <span className="font-bold">7</span>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="md:text-right md:pr-12 flex flex-col items-center md:items-end">
+                  <h3 className="text-xl font-bold text-gray-900">Soporte y Evolución</h3>
+                  <p className="mt-2 text-gray-600 max-w-md">
+                    Proporcionamos acompañamiento continuo, capacitación, soporte técnico y evolución del producto para adaptarse a nuevas necesidades.
+                  </p>
+                </div>
+                <div className="hidden md:block">
+                  <Icon name="AcademicCapIcon" className="h-16 w-16 text-blue-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Botones de acción */}
+          <div className="mt-16 flex flex-col sm:flex-row justify-center gap-4">
+            <a 
+              href="#contacto" 
+              className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+            >
+              Iniciar proyecto
+            </a>
+            <a 
+              href="#metodologias" 
+              className="inline-flex items-center justify-center px-5 py-3 border border-blue-600 text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50"
+            >
+              Conocer más sobre nuestras metodologías
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Estadísticas section */}
+      <div className="bg-blue-700 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+            <div className="text-center">
+              <p className="text-5xl font-extrabold text-white">100+</p>
+              <p className="mt-2 text-xl font-medium text-blue-100">Proyectos completados</p>
+            </div>
+            <div className="text-center">
+              <p className="text-5xl font-extrabold text-white">50+</p>
+              <p className="mt-2 text-xl font-medium text-blue-100">Clientes satisfechos</p>
+            </div>
+            <div className="text-center">
+              <p className="text-5xl font-extrabold text-white">15+</p>
+              <p className="mt-2 text-xl font-medium text-blue-100">Años de experiencia</p>
+            </div>
+            <div className="text-center">
+              <p className="text-5xl font-extrabold text-white">24/7</p>
+              <p className="mt-2 text-xl font-medium text-blue-100">Soporte técnico</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Testimonios section */}
+      <div id="testimonios" className="bg-white py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              Lo que nuestros clientes dicen
+            </h2>
+            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+              Empresas que han transformado sus procesos con nuestras soluciones
+            </p>
+          </div>
+          <div className="mt-16 grid gap-8 lg:grid-cols-3">
+            {/* Testimonio 1 */}
+            <div className="bg-gray-50 rounded-lg p-8 shadow-sm border border-gray-200 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-blue-500 rounded-full p-2">
+                  <Icon name="ChatBubbleLeftIcon" className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="text-gray-700 mb-6 pt-4">
+                <p className="italic">"EncoderGroup transformó nuestra operación digital, implementando una solución que no solo resolvió nuestros problemas inmediatos sino que escaló con nuestro crecimiento."</p>
+              </div>
+              <div className="flex items-center">
+                <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Icon name="UserIcon" className="h-8 w-8 text-blue-500" />
+                </div>
+                <div className="ml-4">
+                  <h4 className="text-lg font-bold text-gray-900">Carlos Martínez</h4>
+                  <p className="text-gray-500">Director de Tecnología, TechSolutions</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonio 2 */}
+            <div className="bg-gray-50 rounded-lg p-8 shadow-sm border border-gray-200 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-blue-500 rounded-full p-2">
+                  <Icon name="ChatBubbleLeftIcon" className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="text-gray-700 mb-6 pt-4">
+                <p className="italic">"El enfoque metodológico de EncoderGroup marcó la diferencia. Cumplieron con los plazos, mantuvieron una comunicación transparente y entregaron un producto de alta calidad."</p>
+              </div>
+              <div className="flex items-center">
+                <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Icon name="UserIcon" className="h-8 w-8 text-blue-500" />
+                </div>
+                <div className="ml-4">
+                  <h4 className="text-lg font-bold text-gray-900">Ana Rodríguez</h4>
+                  <p className="text-gray-500">CEO, Innovatech</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonio 3 */}
+            <div className="bg-gray-50 rounded-lg p-8 shadow-sm border border-gray-200 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-blue-500 rounded-full p-2">
+                  <Icon name="ChatBubbleLeftIcon" className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="text-gray-700 mb-6 pt-4">
+                <p className="italic">"Después de intentar con varios proveedores, encontramos en EncoderGroup el socio tecnológico que entendió nuestras necesidades y las transformó en soluciones concretas."</p>
+              </div>
+              <div className="flex items-center">
+                <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Icon name="UserIcon" className="h-8 w-8 text-blue-500" />
+                </div>
+                <div className="ml-4">
+                  <h4 className="text-lg font-bold text-gray-900">Miguel González</h4>
+                  <p className="text-gray-500">Director de Operaciones, LogisTrade</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recursos section */}
+      <div id="recursos" className="bg-gray-50 py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              Recursos y conocimiento
+            </h2>
+            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+              Artículos, guías y mejores prácticas para el éxito digital
+            </p>
+          </div>
+          <div className="mt-12 grid gap-8 md:grid-cols-3">
+            {/* Recurso 1 */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+              <div className="h-48 bg-blue-600 relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Icon name="DocumentTextIcon" className="h-20 w-20 text-white opacity-20" />
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Guía de implementación ágil</h3>
+                <p className="text-gray-500 mb-4">Aprende a implementar metodologías ágiles en tu organización y mejora la entrega de tus proyectos.</p>
+                <a href="#" className="text-blue-600 font-medium flex items-center">
+                  Leer más <Icon name="ArrowRightIcon" className="h-4 w-4 ml-1" />
+                </a>
+              </div>
+            </div>
+            
+            {/* Recurso 2 */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+              <div className="h-48 bg-blue-600 relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Icon name="PresentationChartLineIcon" className="h-20 w-20 text-white opacity-20" />
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Estrategias de digitalización</h3>
+                <p className="text-gray-500 mb-4">Descubre cómo transformar digitalmente tu empresa para mantener la competitividad en el mercado actual.</p>
+                <a href="#" className="text-blue-600 font-medium flex items-center">
+                  Leer más <Icon name="ArrowRightIcon" className="h-4 w-4 ml-1" />
+                </a>
+              </div>
+            </div>
+            
+            {/* Recurso 3 */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+              <div className="h-48 bg-blue-600 relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Icon name="ShieldCheckIcon" className="h-20 w-20 text-white opacity-20" />
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Seguridad en aplicaciones web</h3>
+                <p className="text-gray-500 mb-4">Conoce las mejores prácticas para proteger tus aplicaciones web y los datos de tus usuarios.</p>
+                <a href="#" className="text-blue-600 font-medium flex items-center">
+                  Leer más <Icon name="ArrowRightIcon" className="h-4 w-4 ml-1" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ section */}
+      <div id="faq" className="bg-white py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              Preguntas frecuentes
+            </h2>
+            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+              Respuestas a las preguntas más comunes sobre nuestros servicios
+            </p>
+          </div>
+          <div className="mt-12 max-w-3xl mx-auto">
+            <div className="space-y-6">
+              {/* Pregunta 1 */}
+              <div className="bg-gray-50 rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                  <Icon name="QuestionMarkCircleIcon" className="h-6 w-6 text-blue-500 mr-2" />
+                  ¿Cuánto tiempo toma desarrollar un proyecto?
+                </h3>
+                <p className="mt-2 text-gray-600">
+                  Cada proyecto es único, pero generalmente nuestros desarrollos toman entre 2-6 meses dependiendo de la complejidad. Trabajamos con metodologías ágiles que permiten entregas incrementales y visibilidad temprana de resultados.
+                </p>
+              </div>
+              
+              {/* Pregunta 2 */}
+              <div className="bg-gray-50 rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                  <Icon name="QuestionMarkCircleIcon" className="h-6 w-6 text-blue-500 mr-2" />
+                  ¿Qué metodologías de trabajo utilizan?
+                </h3>
+                <p className="mt-2 text-gray-600">
+                  Implementamos principalmente Scrum y Kanban, adaptadas a las necesidades específicas de cada proyecto y cliente. Estas metodologías ágiles nos permiten ser flexibles, transparentes y entregar valor de forma constante.
+                </p>
+              </div>
+              
+              {/* Pregunta 3 */}
+              <div className="bg-gray-50 rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                  <Icon name="QuestionMarkCircleIcon" className="h-6 w-6 text-blue-500 mr-2" />
+                  ¿Ofrecen soporte después del lanzamiento?
+                </h3>
+                <p className="mt-2 text-gray-600">
+                  Sí, ofrecemos planes de soporte y mantenimiento para todos nuestros proyectos. Además, proporcionamos capacitación al equipo del cliente para asegurar una transición suave y el máximo aprovechamiento de la solución.
+                </p>
+              </div>
+              
+              {/* Pregunta 4 */}
+              <div className="bg-gray-50 rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                  <Icon name="QuestionMarkCircleIcon" className="h-6 w-6 text-blue-500 mr-2" />
+                  ¿Cómo garantizan la calidad del software?
+                </h3>
+                <p className="mt-2 text-gray-600">
+                  Implementamos prácticas de ingeniería de software como desarrollo basado en pruebas (TDD), integración continua, revisiones de código y pruebas automatizadas. Cada proyecto pasa por rigurosas fases de QA antes de su entrega.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Contacto section */}
+      <div id="contacto" className="bg-gray-50 py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+              <h2 className="text-3xl font-extrabold text-gray-900">Conversemos sobre tu proyecto</h2>
+              <p className="mt-4 text-lg text-gray-500">
+                Estamos listos para ayudarte a transformar tus ideas en soluciones digitales escalables.
+              </p>
+              <div className="mt-8 space-y-6">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <Icon name="EnvelopeIcon" className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div className="ml-3 text-base text-gray-500">
+                    <p>info@encodergroup.com</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <Icon name="PhoneIcon" className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div className="ml-3 text-base text-gray-500">
+                    <p>+1 (555) 123-4567</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <Icon name="MapPinIcon" className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div className="ml-3 text-base text-gray-500">
+                    <p>Silicon Valley, California</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-8 rounded-lg shadow-md">
+              <form className="space-y-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nombre</label>
+                  <input type="text" name="name" id="name" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                  <input type="email" name="email" id="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label htmlFor="company" className="block text-sm font-medium text-gray-700">Empresa</label>
+                  <input type="text" name="company" id="company" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700">Mensaje</label>
+                  <textarea name="message" id="message" rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                </div>
+                <div>
+                  <button type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Enviar mensaje
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* CTA section */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800">
         <div className="max-w-2xl mx-auto text-center py-16 px-4 sm:py-20 sm:px-6 lg:px-8">
