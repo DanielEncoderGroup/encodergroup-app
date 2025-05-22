@@ -600,9 +600,9 @@ const LandingPage: React.FC = () => {
               <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Guía de implementación ágil</h3>
                 <p className="text-gray-500 mb-4">Aprende a implementar metodologías ágiles en tu organización y mejora la entrega de tus proyectos.</p>
-                <a href="#" className="text-blue-600 font-medium flex items-center">
+                <button type="button" className="text-blue-600 font-medium flex items-center hover:text-blue-800 focus:outline-none">
                   Leer más <Icon name="ArrowRightIcon" className="h-4 w-4 ml-1" />
-                </a>
+                </button>
               </div>
             </div>
             
@@ -616,9 +616,9 @@ const LandingPage: React.FC = () => {
               <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Estrategias de digitalización</h3>
                 <p className="text-gray-500 mb-4">Descubre cómo transformar digitalmente tu empresa para mantener la competitividad en el mercado actual.</p>
-                <a href="#" className="text-blue-600 font-medium flex items-center">
+                <button type="button" className="text-blue-600 font-medium flex items-center hover:text-blue-800 focus:outline-none">
                   Leer más <Icon name="ArrowRightIcon" className="h-4 w-4 ml-1" />
-                </a>
+                </button>
               </div>
             </div>
             
@@ -632,9 +632,9 @@ const LandingPage: React.FC = () => {
               <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Seguridad en aplicaciones web</h3>
                 <p className="text-gray-500 mb-4">Conoce las mejores prácticas para proteger tus aplicaciones web y los datos de tus usuarios.</p>
-                <a href="#" className="text-blue-600 font-medium flex items-center">
+                <button type="button" className="text-blue-600 font-medium flex items-center hover:text-blue-800 focus:outline-none">
                   Leer más <Icon name="ArrowRightIcon" className="h-4 w-4 ml-1" />
-                </a>
+                </button>
               </div>
             </div>
           </div>
