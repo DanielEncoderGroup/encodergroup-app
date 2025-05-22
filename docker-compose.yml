@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Servicio de MongoDB
+  mongo:
+    image: mongo:latest
+    container_name: encodergroup-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - encodergroup-network
+    restart: unless-stopped
+
+  # Servicio del backend (API)
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: encodergroup-server
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/encodergroup
+      - NODE_ENV=production
+      - PORT=5000
+      - JWT_SECRET=encodergroup_jwt_secret_key_secure_2023
+      - JWT_EXPIRES_IN=7d
+      - JWT_COOKIE_EXPIRES_IN=7
+      - SMTP_HOST=mail.encodergroup.cl
+      - SMTP_PORT=465
+      - SMTP_USER=noreply@encodergroup.cl
+      - SMTP_PASSWORD=.3H*qU8MI&?g
+      - SMTP_SSL=true
+      - CLIENT_URL=http://localhost
+    networks:
+      - encodergroup-network
+    restart: unless-stopped
+
+  # Servicio del frontend
+  client:
+    build:
+      context: ./client-new
+      dockerfile: Dockerfile
+    container_name: encodergroup-client
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - encodergroup-network
+    restart: unless-stopped
+
+# Volúmenes para persistencia de datos
+volumes:
+  mongo-data:
+
+# Red para la comunicación entre servicios
+networks:
+  encodergroup-network:
+    driver: bridge
