@@ -8,6 +8,7 @@ export interface User {
   company?: string;
   token?: string;
   profileImage?: string;
+  name?: string; // Campo necesario para compatibilidad
 }
 
 // Authentication related types

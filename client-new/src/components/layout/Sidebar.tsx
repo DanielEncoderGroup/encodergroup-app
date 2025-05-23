@@ -33,12 +33,14 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   // Elementos específicos para administradores
   const adminNavItems = [
     { name: 'Gestión de Solicitudes', href: '/app/requests', iconName: 'ClipboardDocumentListIcon' },
+    { name: 'Proyectos Informáticos', href: '/app/projects/admin', iconName: 'ComputerDesktopIcon' },
   ];
 
   // Elementos específicos para clientes
   const clientNavItems = [
     { name: 'Mis Solicitudes', href: '/app/requests', iconName: 'ClipboardDocumentListIcon' },
     { name: 'Nueva Solicitud', href: '/app/requests/new', iconName: 'PlusCircleIcon' },
+    { name: 'Solicitar Proyecto IT', href: '/app/projects/request/new', iconName: 'ComputerDesktopIcon', isNew: true },
   ];
 
   // Combinar elementos de navegación según el rol
@@ -226,7 +228,15 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                       }
                     `}
                   />
-                  {item.name}
+                  <div className="flex items-center">
+                    {item.name}
+                    {/* Mostrar etiqueta 'Nuevo' si corresponde */}
+                    {(item as any).isNew && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Nuevo
+                      </span>
+                    )}
+                  </div>
                 </Link>
               ))}
             </nav>

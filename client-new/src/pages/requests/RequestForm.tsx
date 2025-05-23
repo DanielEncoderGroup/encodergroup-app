@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { requestService } from '../../services/requestService';
-import { RequestCreate, RequestUpdate, RequestDetail } from '../../types/request';
+import { RequestCreate, RequestUpdate, RequestDetail, ProjectType, ProjectTypeLabels, ProjectPriority, PriorityLabels } from '../../types/request';
 import { Formik, Form, Field, ErrorMessage, FormikProps } from 'formik';
 import { toast } from 'react-hot-toast';
 import { Icon } from '../../components/ui';
@@ -66,6 +66,7 @@ const RequestForm: React.FC = () => {
   const initialValues: RequestCreate = {
     title: request?.title || '',
     description: request?.description || '',
+    projectType: request?.projectType || ProjectType.CUSTOM, // Valor por defecto para cumplir con el requisito
     amount: request?.amount || undefined,
     dueDate: request?.dueDate ? request.dueDate.split('T')[0] : '',
     tags: tags
@@ -89,28 +90,24 @@ const RequestForm: React.FC = () => {
   const validateRequestData = (values: RequestCreate) => {
     const errors: Record<string, string> = {};
     
-    // Validar monto si existe
-    if (values.amount) {
-      const num = parseFloat(values.amount.toString());
+    // Validar presupuesto si existe
+    if (values.budget !== undefined) {
+      const num = parseFloat(values.budget.toString());
       if (isNaN(num)) {
-        errors.amount = 'El monto debe ser un número válido';
+        errors.budget = 'El presupuesto debe ser un número válido';
       } else if (num < 0) {
-        errors.amount = 'El monto no puede ser negativo';
+        errors.budget = 'El presupuesto no puede ser negativo';
       }
     }
     
-    // Validar fecha si existe
-    if (values.dueDate) {
-      const date = new Date(values.dueDate);
-      if (isNaN(date.getTime())) {
-        errors.dueDate = 'La fecha debe ser válida';
-      } else {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (date < today) {
-          errors.dueDate = 'La fecha no puede ser en el pasado';
-        }
-      }
+    // Validaciones adicionales específicas para proyectos informáticos
+    if (!values.projectType) {
+      errors.projectType = 'El tipo de proyecto es obligatorio';
+    }
+    
+    // Validación de objetivos de negocio (campo opcional pero importante)
+    if (values.businessGoals && values.businessGoals.length < 10) {
+      errors.businessGoals = 'Los objetivos de negocio deben ser más detallados';
     }
     
     return errors;
@@ -127,8 +124,13 @@ const RequestForm: React.FC = () => {
       return;
     }
     
-    // Incluir etiquetas
-    const requestData = { ...values, tags };
+    // Formatear datos para envío
+    const requestData = {
+      ...values,
+      tags,
+      // Asegurar que los campos numéricos se envíen como números
+      budget: values.budget ? parseFloat(values.budget.toString()) : undefined
+    };
 
     try {
       setSaving(true);
@@ -136,11 +138,11 @@ const RequestForm: React.FC = () => {
       if (isEditMode) {
         // Actualizar solicitud existente
         await requestService.update(id, requestData as RequestUpdate);
-        toast.success('Solicitud actualizada correctamente');
+        toast.success('Proyecto actualizado correctamente');
       } else {
-        // Crear nueva solicitud
+        // Crear nueva solicitud de proyecto
         const response = await requestService.create(requestData);
-        toast.success('Solicitud creada correctamente');
+        toast.success('Solicitud de proyecto enviada correctamente');
         
         // Navegar a la solicitud creada
         if (response.requestId) {
@@ -152,8 +154,8 @@ const RequestForm: React.FC = () => {
       // Volver a la lista de solicitudes o a la solicitud editada
       navigate(isEditMode ? `/app/requests/${id}` : '/app/requests');
     } catch (error) {
-      console.error('Error saving request:', error);
-      toast.error('Error al guardar la solicitud');
+      console.error('Error al guardar la solicitud de proyecto:', error);
+      toast.error('Error al enviar la solicitud de proyecto');
     } finally {
       setSaving(false);
     }

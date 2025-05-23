@@ -27,6 +27,8 @@ import MeetingsScheduler from './pages/meetings/MeetingsScheduler';
 import RequestsList from './pages/requests/RequestsList';
 import RequestDetail from './pages/requests/RequestDetail';
 import RequestForm from './pages/requests/RequestForm';
+import NewProjectRequest from './pages/projects/NewProjectRequest';
+import ProjectRequestsAdmin from './pages/projects/ProjectRequestsAdmin';
 import Statistics from './pages/dashboard/Statistics';
 import Profile from './pages/profile/Profile';
 import NotFound from './pages/NotFound';
@@ -58,10 +60,17 @@ function App() {
           <Route path="requests" element={<RequestsList />} />
           <Route path="requests/:id" element={<RequestDetail />} />
           
+          {/* Rutas protegidas para administradores */}
+          <Route element={<AdminRoute />}>
+            <Route path="projects/admin" element={<ProjectRequestsAdmin />} />
+          </Route>
+          
           {/* Rutas protegidas para clientes */}
           <Route element={<ClientRoute />}>
             <Route path="requests/new" element={<RequestForm />} />
             <Route path="requests/edit/:id" element={<RequestForm />} />
+            {/* Nueva ruta para solicitudes de proyectos con el formulario mejorado */}
+            <Route path="projects/request/new" element={<NewProjectRequest />} />
           </Route>
           <Route path="stats" element={<Statistics />} />
           <Route path="profile" element={<Profile />} />

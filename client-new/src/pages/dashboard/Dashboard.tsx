@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { Icon } from '../../components/ui';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -45,6 +46,116 @@ const Dashboard: React.FC = () => {
           Bienvenido{user?.name ? `, ${user.name}` : ''}. Aquí tienes un resumen de tu actividad reciente.
         </p>
       </div>
+
+      {/* Tarjetas de acceso rápido - solo visible para clientes */}
+      {user?.role === 'client' && (
+        <div className="mb-8">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Accesos rápidos</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Tarjeta para solicitudes regulares */}
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <Icon name="DocumentTextIcon" className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dt className="text-sm font-medium text-gray-500 truncate">Solicitudes regulares</dt>
+                    <dd className="flex items-baseline">
+                      <div className="text-lg font-semibold text-gray-900">Crear nueva solicitud</div>
+                    </dd>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-5 py-3">
+                <div className="text-sm">
+                  <Link to="/app/requests/new" className="font-medium text-blue-600 hover:text-blue-900">
+                    Crear solicitud <span aria-hidden="true">&rarr;</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Tarjeta para proyectos informáticos con indicador de novedad */}
+            <div className="bg-white overflow-hidden shadow rounded-lg border-l-4 border-blue-500">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <Icon name="ComputerDesktopIcon" className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dt className="text-sm font-medium text-gray-500 truncate flex items-center">
+                      Proyectos Informáticos
+                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Nuevo
+                      </span>
+                    </dt>
+                    <dd className="flex items-baseline">
+                      <div className="text-lg font-semibold text-gray-900">Solicitar proyecto IT</div>
+                    </dd>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-5 py-3">
+                <div className="text-sm">
+                  <Link to="/app/projects/request/new" className="font-medium text-blue-600 hover:text-blue-900">
+                    Solicitar ahora <span aria-hidden="true">&rarr;</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Tarjeta para ver solicitudes */}
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0 bg-gray-100 rounded-md p-3">
+                    <Icon name="ClipboardDocumentListIcon" className="h-6 w-6 text-gray-600" />
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dt className="text-sm font-medium text-gray-500 truncate">Gestionar solicitudes</dt>
+                    <dd className="flex items-baseline">
+                      <div className="text-lg font-semibold text-gray-900">Ver todas mis solicitudes</div>
+                    </dd>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-5 py-3">
+                <div className="text-sm">
+                  <Link to="/app/requests" className="font-medium text-gray-600 hover:text-gray-900">
+                    Ver listado <span aria-hidden="true">&rarr;</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Banner promocional para nueva funcionalidad - visible solo para clientes */}
+      {user?.role === 'client' && (
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg shadow-lg mb-8 overflow-hidden">
+          <div className="px-6 py-5 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-white">¡Nueva funcionalidad disponible!</h3>
+              <p className="mt-1 text-sm text-blue-100">
+                Prueba nuestro nuevo formulario mejorado para solicitudes de proyectos informáticos. Diseñado para capturar todos los detalles de tu proyecto tecnológico.
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-0">
+              <Link
+                to="/app/projects/request/new"
+                className="inline-flex items-center px-4 py-2 border border-white rounded-md shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-600 focus:ring-white"
+              >
+                <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Crear Solicitud Avanzada
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tarjetas de resumen */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
