@@ -9,7 +9,7 @@ load_dotenv()
 class Settings(BaseSettings):
     # Base settings
     API_V1_STR: str = "/api"
-    PROJECT_NAME: str = "MisViaticos"
+    PROJECT_NAME: str = "EncoderGroup"
     DEBUG: bool = os.getenv("DEBUG", "False").lower() in ("true", "1", "t")
     
     # Server settings
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     ]
     
     # MongoDB settings
-    MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://mongo:27017/misviaticos")
+    MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://mongo:27017/encodergroup")
     
     # JWT settings
     JWT_SECRET: str = os.getenv("JWT_SECRET", "your_jwt_secret_key_changeme")

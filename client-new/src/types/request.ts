@@ -14,7 +14,8 @@ export enum RequestStatus {
   COMPLETED = 'completed', // Completado
   // Estados legacy para compatibilidad
   IN_PROCESS = 'in_process',
-  IN_REVIEW = 'in_review'
+  IN_REVIEW = 'in_review',
+  CANCELED = 'canceled' // Cancelado por el cliente o admin
 }
 
 // Etiquetas para los estados
@@ -31,7 +32,8 @@ export const RequestStatusLabels: Record<RequestStatus, string> = {
   [RequestStatus.COMPLETED]: 'Completado',
   // Estados legacy
   [RequestStatus.IN_PROCESS]: 'En Proceso',
-  [RequestStatus.IN_REVIEW]: 'En Revisión'
+  [RequestStatus.IN_REVIEW]: 'En Revisión',
+  [RequestStatus.CANCELED]: 'Cancelado'
 };
 
 // Colores para los estados
@@ -48,7 +50,8 @@ export const RequestStatusColors: Record<RequestStatus, string> = {
   [RequestStatus.COMPLETED]: 'emerald',
   // Estados legacy
   [RequestStatus.IN_PROCESS]: 'blue',
-  [RequestStatus.IN_REVIEW]: 'purple'
+  [RequestStatus.IN_REVIEW]: 'purple',
+  [RequestStatus.CANCELED]: 'gray'
 };
 
 // Modelo para comentarios
@@ -107,6 +110,12 @@ export interface RequestSummary {
   createdAt: string;
   updatedAt?: string;
   progress?: number; // Porcentaje de progreso (0-100)
+  // Campos adicionales para proyectos IT
+  technicalRequirements?: string; // Requisitos técnicos específicos
+  businessGoals?: string; // Objetivos de negocio del proyecto
+  integrationsNeeded?: string; // Sistemas con los que debe integrarse
+  targetAudience?: string; // Público objetivo del proyecto
+  additionalInfo?: string; // Información adicional relevante
   // Campos legacy para compatibilidad
   amount?: number; // Campo legacy para presupuesto
   dueDate?: string; // Campo legacy para fecha límite
@@ -228,6 +237,11 @@ export interface RequestsListResponse {
   skip: number;
   limit: number;
   requests: RequestSummary[];
+  // Alias para compatibilidad con componentes que esperan 'items'
+  items?: RequestSummary[];
+  // Campos adicionales para paginación
+  page?: number;
+  pages?: number;
 }
 
 // Respuesta de una solicitud individual

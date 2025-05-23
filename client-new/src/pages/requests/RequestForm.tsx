@@ -19,9 +19,9 @@ const RequestForm: React.FC = () => {
   const [tags, setTags] = useState<string[]>([]);
   const isEditMode = !!id;
 
-  // Comprobar si el usuario es cliente
+  // Comprobar si el usuario es cliente (rol 'user')
   useEffect(() => {
-    if (!user || user.role !== 'client') {
+    if (user && user.role !== 'user') {
       toast.error('No tienes permiso para acceder a esta página');
       navigate('/app/dashboard');
     }
@@ -172,7 +172,7 @@ const RequestForm: React.FC = () => {
   return (
     <div className="py-6 px-4 sm:px-6 lg:px-8">
       {/* Encabezado */}
-      <div className="mb-6">
+      <div className="mb-8">
         <button
           onClick={() => navigate(isEditMode ? `/app/requests/${id}` : '/app/requests')}
           className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mb-4"
@@ -182,17 +182,106 @@ const RequestForm: React.FC = () => {
         </button>
         
         <h1 className="text-2xl font-bold text-gray-900">
-          {isEditMode ? 'Editar solicitud' : 'Nueva solicitud'}
+          {isEditMode ? 'Editar solicitud' : 'Nueva solicitud de servicio'}
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {isEditMode
-            ? 'Actualiza los detalles de tu solicitud'
-            : 'Crea una nueva solicitud para enviar al equipo administrativo'}
+        
+        <p className="mt-2 text-sm text-gray-500 max-w-3xl">
+          Complete este formulario para solicitar servicios generales, consultoría o soporte técnico. 
+          Nuestro equipo analizará su solicitud y se pondrá en contacto con usted a la brevedad.
         </p>
+        
+        {/* Tarjetas informativas de servicios */}
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="relative rounded-lg border border-gray-200 bg-white px-4 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+            <div className="flex-shrink-0 bg-blue-100 rounded-md p-2">
+              <Icon name="UserGroupIcon" className="h-5 w-5 text-blue-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900">Consultoría</p>
+              <p className="text-xs text-gray-500 truncate">Asesoramiento profesional</p>
+            </div>
+          </div>
+          
+          <div className="relative rounded-lg border border-gray-200 bg-white px-4 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+            <div className="flex-shrink-0 bg-blue-100 rounded-md p-2">
+              <Icon name="WrenchIcon" className="h-5 w-5 text-blue-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900">Soporte técnico</p>
+              <p className="text-xs text-gray-500 truncate">Resolución de problemas</p>
+            </div>
+          </div>
+          
+          <div className="relative rounded-lg border border-gray-200 bg-white px-4 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+            <div className="flex-shrink-0 bg-blue-100 rounded-md p-2">
+              <Icon name="AcademicCapIcon" className="h-5 w-5 text-blue-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900">Capacitación</p>
+              <p className="text-xs text-gray-500 truncate">Talleres y cursos</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-6 p-4 bg-blue-50 rounded-md border border-blue-100">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <Icon name="InformationCircleIcon" className="h-5 w-5 text-blue-400" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-blue-800">Información importante</h3>
+              <div className="mt-2 text-sm text-blue-700">
+                <p>Para proyectos tecnológicos más complejos, le recomendamos utilizar el formulario específico de <span className="font-medium">Solicitud de Proyecto IT</span> disponible desde su panel principal.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Pasos del proceso de solicitud */}
+        <div className="mt-8 mb-4">
+          <div className="border-t border-gray-200 pt-5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-gray-600">Progreso de solicitud</h3>
+            </div>
+
+            <nav aria-label="Progress" className="mt-2">
+              <ol className="flex items-center">
+                <li className="relative pr-8 sm:pr-20">
+                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div className="h-0.5 w-full bg-blue-600"></div>
+                  </div>
+                  <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 hover:bg-blue-900">
+                    <Icon name="PencilIcon" className="h-4 w-4 text-white" aria-hidden="true" />
+                    <span className="sr-only">Crear solicitud</span>
+                  </div>
+                  <div className="mt-2 text-xs font-medium text-blue-600">Crear</div>
+                </li>
+
+                <li className="relative pr-8 sm:pr-20">
+                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div className="h-0.5 w-full bg-gray-200"></div>
+                  </div>
+                  <div className="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-300 bg-white">
+                    <Icon name="ChatBubbleLeftRightIcon" className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                    <span className="sr-only">Revisión</span>
+                  </div>
+                  <div className="mt-2 text-xs font-medium text-gray-500">Revisión</div>
+                </li>
+
+                <li className="relative">
+                  <div className="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-300 bg-white">
+                    <Icon name="CheckCircleIcon" className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                    <span className="sr-only">Aprobación</span>
+                  </div>
+                  <div className="mt-2 text-xs font-medium text-gray-500">Aprobación</div>
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
       </div>
 
       {/* Formulario */}
-      <div className="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
+      <div className="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6 border border-gray-200">
         <Formik
           initialValues={initialValues}
           validationSchema={RequestSchema}

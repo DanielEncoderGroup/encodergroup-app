@@ -8,6 +8,11 @@ import {
   RequestResponse,
   RequestStatus
 } from '../types/request';
+// Importamos el servicio mock para desarrollo
+import { mockRequestService } from './mockRequestService';
+
+// Flag para activar o desactivar el modo mock (desarrollo)
+const USE_MOCK_SERVICE = true;
 
 // Servicio para gestión de solicitudes
 export const requestService = {
@@ -19,6 +24,11 @@ export const requestService = {
     skip: number = 0,
     limit: number = 10
   ) => {
+    // Si estamos en modo mock, usamos el servicio mock
+    if (USE_MOCK_SERVICE) {
+      return mockRequestService.getAll(status, clientId, search, skip, limit);
+    }
+    
     try {
       let url = `/requests?skip=${skip}&limit=${limit}`;
       
@@ -43,6 +53,11 @@ export const requestService = {
   
   // Obtener una solicitud por su ID
   getById: async (id: string) => {
+    // Si estamos en modo mock, usamos el servicio mock
+    if (USE_MOCK_SERVICE) {
+      return mockRequestService.getById(id);
+    }
+    
     try {
       const response = await api.get<RequestResponse>(`/requests/${id}`);
       return response.data;
@@ -53,6 +68,11 @@ export const requestService = {
   
   // Crear una nueva solicitud
   create: async (request: RequestCreate) => {
+    // Si estamos en modo mock, usamos el servicio mock
+    if (USE_MOCK_SERVICE) {
+      return mockRequestService.create(request);
+    }
+    
     try {
       const response = await api.post('/requests', request);
       return response.data;
@@ -63,6 +83,11 @@ export const requestService = {
   
   // Actualizar una solicitud existente
   update: async (id: string, request: RequestUpdate) => {
+    // Si estamos en modo mock, usamos el servicio mock
+    if (USE_MOCK_SERVICE) {
+      return mockRequestService.update(id, request);
+    }
+    
     try {
       const response = await api.put(`/requests/${id}`, request);
       return response.data;
@@ -73,6 +98,13 @@ export const requestService = {
   
   // Eliminar una solicitud
   delete: async (id: string) => {
+    // Si estamos en modo mock, usamos el servicio mock
+    if (USE_MOCK_SERVICE) {
+      // No implementamos delete en el mock, pero devolvemos un objeto de éxito
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return { success: true, message: 'Solicitud eliminada correctamente' };
+    }
+    
     try {
       const response = await api.delete(`/requests/${id}`);
       return response.data;
@@ -83,6 +115,11 @@ export const requestService = {
   
   // Cambiar el estado de una solicitud (solo admin)
   changeStatus: async (id: string, statusChange: StatusChangeRequest) => {
+    // Si estamos en modo mock, usamos el servicio mock
+    if (USE_MOCK_SERVICE) {
+      return mockRequestService.changeStatus(id, statusChange);
+    }
+    
     try {
       const response = await api.patch(`/requests/${id}/status`, statusChange);
       return response.data;
@@ -93,6 +130,11 @@ export const requestService = {
   
   // Añadir un comentario a una solicitud
   addComment: async (id: string, comment: CommentCreate) => {
+    // Si estamos en modo mock, usamos el servicio mock
+    if (USE_MOCK_SERVICE) {
+      return mockRequestService.addComment(id, comment);
+    }
+    
     try {
       const response = await api.post(`/requests/${id}/comments`, comment);
       return response.data;
@@ -101,8 +143,13 @@ export const requestService = {
     }
   },
   
-  // Enviar una solicitud para revisión (cambiar de DRAFT a IN_PROCESS)
+  // Enviar una solicitud para revisión (cambiar de DRAFT a SUBMITTED)
   submitRequest: async (id: string) => {
+    // Si estamos en modo mock, usamos el servicio mock
+    if (USE_MOCK_SERVICE) {
+      return mockRequestService.submitRequest(id);
+    }
+    
     try {
       const response = await api.post(`/requests/${id}/submit`);
       return response.data;

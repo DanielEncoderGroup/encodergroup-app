@@ -47,8 +47,8 @@ const Dashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* Tarjetas de acceso rápido - solo visible para clientes */}
-      {user?.role === 'client' && (
+      {/* Tarjetas de acceso rápido - solo visible para usuarios (clientes) */}
+      {user?.role === 'user' && (
         <div className="mb-8">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Accesos rápidos</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -60,9 +60,9 @@ const Dashboard: React.FC = () => {
                     <Icon name="DocumentTextIcon" className="h-6 w-6 text-blue-600" />
                   </div>
                   <div className="ml-5 w-0 flex-1">
-                    <dt className="text-sm font-medium text-gray-500 truncate">Solicitudes regulares</dt>
+                    <dt className="text-sm font-medium text-gray-500 truncate">Servicios generales</dt>
                     <dd className="flex items-baseline">
-                      <div className="text-lg font-semibold text-gray-900">Crear nueva solicitud</div>
+                      <div className="text-lg font-semibold text-gray-900">Solicitar servicio o consultoría</div>
                     </dd>
                   </div>
                 </div>
@@ -70,7 +70,7 @@ const Dashboard: React.FC = () => {
               <div className="bg-gray-50 px-5 py-3">
                 <div className="text-sm">
                   <Link to="/app/requests/new" className="font-medium text-blue-600 hover:text-blue-900">
-                    Crear solicitud <span aria-hidden="true">&rarr;</span>
+                    Solicitar ahora <span aria-hidden="true">&rarr;</span>
                   </Link>
                 </div>
               </div>

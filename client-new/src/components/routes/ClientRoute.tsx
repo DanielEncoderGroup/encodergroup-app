@@ -24,8 +24,8 @@ const ClientRoute: React.FC<ClientRouteProps> = ({ element }) => {
     return <Navigate to="/login" replace />;
   }
   
-  // Si está autenticado pero no es cliente, redirigir a dashboard
-  if (user?.role !== 'client') {
+  // Si está autenticado pero no es usuario regular (cliente), redirigir a dashboard
+  if (user?.role !== 'user') {
     return <Navigate to="/app/dashboard" replace />;
   }
 

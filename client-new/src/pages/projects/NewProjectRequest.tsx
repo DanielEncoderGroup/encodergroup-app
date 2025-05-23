@@ -14,7 +14,7 @@ const NewProjectRequest: React.FC = () => {
 
   // Verificar que el usuario es un cliente
   useEffect(() => {
-    if (!user || user.role !== 'client') {
+    if (user && user.role !== 'user') {
       toast.error('No tienes permiso para acceder a esta página');
       navigate('/app/dashboard');
     }

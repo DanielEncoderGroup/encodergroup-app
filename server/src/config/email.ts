@@ -29,7 +29,7 @@ export const sendEmail = async (
     const transporter = createTransporter();
     
     const mailOptions = {
-      from: `MisViaticos <${process.env.SMTP_USER}>`,
+      from: `EncoderGroup <${process.env.SMTP_USER}>`,
       to,
       subject,
       html
@@ -50,18 +50,18 @@ export const sendVerificationEmail = async (
   name: string,
   token: string
 ): Promise<boolean> => {
-  const subject = 'Verificación de correo electrónico - MisViaticos';
+  const subject = 'Verificación de correo electrónico - EncoderGroup';
   const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${token}`;
   
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="color: #4F46E5;">MisViaticos</h1>
+        <h1 style="color: #4F46E5;">EncoderGroup</h1>
       </div>
       <div style="background-color: #f8fafc; padding: 20px; border-radius: 5px;">
         <h2 style="color: #334155;">¡Hola ${name}!</h2>
         <p style="color: #64748b; line-height: 1.6;">
-          Gracias por registrarte en MisViaticos. Para completar tu registro, por favor verifica tu correo electrónico haciendo clic en el botón a continuación:
+          Gracias por registrarte en EncoderGroup. Para completar tu registro, por favor verifica tu correo electrónico haciendo clic en el botón a continuación:
         </p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${verificationUrl}" style="background-color: #4F46E5; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
@@ -79,7 +79,7 @@ export const sendVerificationEmail = async (
         </p>
         <p style="color: #64748b; line-height: 1.6; margin-top: 30px;">
           Saludos,<br>
-          El equipo de MisViaticos
+          El equipo de EncoderGroup
         </p>
       </div>
     </div>
@@ -94,13 +94,13 @@ export const sendPasswordResetEmail = async (
   name: string,
   token: string
 ): Promise<boolean> => {
-  const subject = 'Restablecimiento de contraseña - MisViaticos';
+  const subject = 'Restablecimiento de contraseña - EncoderGroup';
   const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
   
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="color: #4F46E5;">MisViaticos</h1>
+        <h1 style="color: #4F46E5;">EncoderGroup</h1>
       </div>
       <div style="background-color: #f8fafc; padding: 20px; border-radius: 5px;">
         <h2 style="color: #334155;">¡Hola ${name}!</h2>
@@ -126,7 +126,7 @@ export const sendPasswordResetEmail = async (
         </p>
         <p style="color: #64748b; line-height: 1.6; margin-top: 30px;">
           Saludos,<br>
-          El equipo de MisViaticos
+          El equipo de EncoderGroup
         </p>
       </div>
     </div>
