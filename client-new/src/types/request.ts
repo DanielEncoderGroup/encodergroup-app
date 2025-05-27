@@ -110,6 +110,7 @@ export interface RequestSummary {
   createdAt: string;
   updatedAt?: string;
   progress?: number; // Porcentaje de progreso (0-100)
+  viewed?: boolean; // Indica si la solicitud ha sido vista por un administrador
   // Campos adicionales para proyectos IT
   technicalRequirements?: string; // Requisitos técnicos específicos
   businessGoals?: string; // Objetivos de negocio del proyecto

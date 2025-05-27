@@ -1,18 +1,28 @@
-FROM node:18-alpine
+FROM python:3.10-slim
 
-# Configuración para deshabilitar la verificación SSL en Node.js
-ENV NODE_TLS_REJECT_UNAUTHORIZED=0
+# Configuración para el entorno de Python
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY package*.json ./
+# Instalar dependencias de sistema necesarias
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    python3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN npm install
+# Instalar dependencias de Python
+COPY app/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copiar solo la aplicación FastAPI (ignorando la implementación Node.js)
+COPY app/ ./app/
+COPY .env .env.example ./
 
-RUN npm run build
-
+# Puerto para FastAPI
 EXPOSE 5000
 
-CMD ["npm", "start"]
+# Comando para iniciar la aplicación FastAPI
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000"]

@@ -17,6 +17,9 @@ from app.models.request import (
 )
 from app.core.database import get_database
 from app.api.deps import get_current_user, get_admin_user, get_client_user, get_any_user
+from app.core.email_service import send_email
+from app.templates.request_notification import get_request_notification_template
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -37,6 +40,7 @@ async def create_request(
         "status": RequestStatus.DRAFT,
         "comments": [],
         "files": [],
+        "viewed": False,  # Nuevo campo para rastrear si la solicitud ha sido vista por un admin
         "statusHistory": [{
             "fromStatus": None,
             "toStatus": RequestStatus.DRAFT,
@@ -56,6 +60,44 @@ async def create_request(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error al crear la solicitud"
         )
+    
+    # Enviar notificaciones por correo a los administradores
+    try:
+        # Obtener el tipo de proyecto en formato legible
+        project_type_label = "Personalizado"  # Valor por defecto
+        if request_in.projectType in ProjectTypeLabels:
+            project_type_label = ProjectTypeLabels[request_in.projectType]
+        
+        # Construir la URL del administrador para ver la solicitud
+        admin_url = f"{settings.CLIENT_URL}/app/admin/requests/{str(created_request['_id'])}"
+        
+        # Obtener todos los usuarios con rol de administrador
+        admin_users = db.users.find({"role": UserRole.ADMIN})
+        
+        async for admin in admin_users:
+            # Enviar correo a cada administrador
+            admin_name = admin.get("name", "Administrador")
+            html_content, text_content = get_request_notification_template(
+                admin_name=admin_name,
+                client_name=current_user.name,
+                request_title=request_in.title,
+                request_type=project_type_label,
+                request_id=str(created_request['_id']),
+                admin_url=admin_url
+            )
+            
+            # Enviar el correo
+            send_email(
+                to_email=admin["email"],
+                subject=f"Nueva Solicitud: {request_in.title}",
+                text_content=text_content,
+                html_content=html_content
+            )
+            
+        print(f"Notificaciones enviadas a administradores para la solicitud {str(created_request['_id'])}")
+    except Exception as e:
+        # Si falla el envío de correos, lo registramos pero no detenemos la creación de la solicitud
+        print(f"Error al enviar notificaciones: {str(e)}")
     
     return {
         "success": True,
@@ -196,6 +238,16 @@ async def get_request(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tienes permiso para ver esta solicitud"
         )
+    
+    # Si el usuario es administrador y la solicitud no ha sido vista,
+    # la marcamos como vista automáticamente
+    if current_user.role == UserRole.ADMIN and request.get("viewed") is False:
+        await db.requests.update_one(
+            {"_id": ObjectId(request_id)},
+            {"$set": {"viewed": True}}
+        )
+        request["viewed"] = True
+        print(f"Solicitud {request_id} marcada como vista por {current_user.email}")
     
     # Obtener información del cliente
     client = await db.users.find_one({"_id": request["clientId"]})
@@ -673,4 +725,60 @@ async def submit_request(
     return {
         "success": True,
         "message": "Solicitud enviada correctamente para revisión"
+    }
+
+
+@router.patch("/{request_id}/mark-viewed", response_model=dict)
+async def mark_request_as_viewed(
+    request_id: str = Path(..., description="ID de la solicitud"),
+    current_user: UserPublic = Depends(get_admin_user)
+) -> dict:
+    """
+    Marcar una solicitud como vista por un administrador.
+    Solo los administradores pueden marcar solicitudes como vistas.
+    """
+    db = get_database()
+    
+    try:
+        request = await db.requests.find_one({"_id": ObjectId(request_id)})
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ID de solicitud inválido"
+        )
+    
+    if not request:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Solicitud no encontrada"
+        )
+    
+    # Actualizar el campo 'viewed' a True
+    await db.requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {"$set": {"viewed": True}}
+    )
+    
+    return {
+        "success": True,
+        "message": "Solicitud marcada como vista"
+    }
+
+
+@router.get("/unviewed/count", response_model=dict)
+async def get_unviewed_requests_count(
+    current_user: UserPublic = Depends(get_admin_user)
+) -> dict:
+    """
+    Obtener el número de solicitudes no vistas.
+    Solo disponible para administradores.
+    """
+    db = get_database()
+    
+    # Contar solicitudes no vistas (viewed=False)
+    count = await db.requests.count_documents({"viewed": False})
+    
+    return {
+        "success": True,
+        "count": count
     }

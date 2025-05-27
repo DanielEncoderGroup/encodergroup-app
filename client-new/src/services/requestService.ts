@@ -156,6 +156,40 @@ export const requestService = {
     } catch (error) {
       throw error;
     }
+  },
+  
+  // Obtener el conteo de solicitudes no vistas (solo para administradores)
+  getUnviewedCount: async () => {
+    // Si estamos en modo mock, simulamos la respuesta
+    if (USE_MOCK_SERVICE) {
+      // Simulamos una respuesta con un número aleatorio entre 0 y 5
+      await new Promise(resolve => setTimeout(resolve, 300));
+      return { success: true, count: Math.floor(Math.random() * 6) };
+    }
+    
+    try {
+      const response = await api.get('/requests/unviewed/count');
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener conteo de solicitudes no vistas:', error);
+      return { success: false, count: 0 };
+    }
+  },
+  
+  // Marcar una solicitud como vista (solo para administradores)
+  markRequestAsViewed: async (id: string) => {
+    // Si estamos en modo mock, simulamos la respuesta
+    if (USE_MOCK_SERVICE) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      return { success: true, message: 'Solicitud marcada como vista' };
+    }
+    
+    try {
+      const response = await api.patch(`/requests/${id}/mark-viewed`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 
