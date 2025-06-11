@@ -25,10 +25,11 @@ EncoderGroup es una plataforma integral de gestión empresarial diseñada para o
 - Context API para gestión de estado
 
 ### Backend
-- Node.js con Express
+- Python 3.10+ con FastAPI
 - MongoDB como base de datos
 - Autenticación JWT
 - APIs RESTful
+- Dependencias Python gestionadas con Poetry: FastAPI, Uvicorn y más
 
 ### Infraestructura
 - Docker y Docker Compose
@@ -45,7 +46,8 @@ La aplicación sigue una arquitectura cliente-servidor moderna:
 
 ## 📋 Requisitos
 
-- Node.js 16+
+- Node.js 16+ (para el frontend)
+- Python 3.10+ (para el backend)
 - Docker y Docker Compose
 - MongoDB
 
@@ -64,7 +66,7 @@ docker-compose up --build
 
 La aplicación estará disponible en:
 - Frontend: http://localhost
-- Backend API: http://localhost:5000
+- Backend API: http://localhost:8000
 
 ### Instalación Manual
 
@@ -72,11 +74,10 @@ La aplicación estará disponible en:
 # Clonar el repositorio
 git clone https://github.com/DanielEncoderGroup/encodergroup-app.git
 cd encodergroup-app
-
 # Instalar dependencias del servidor
 cd server
-npm install
-npm run dev
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 
 # En otra terminal, instalar dependencias del cliente
 cd ../client-new
