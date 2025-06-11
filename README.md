@@ -25,7 +25,7 @@ EncoderGroup es una plataforma integral de gestión empresarial diseñada para o
 - Context API para gestión de estado
 
 ### Backend
-- FastAPI con Python
+- Node.js con Express
 - MongoDB como base de datos
 - Autenticación JWT
 - APIs RESTful
@@ -45,7 +45,7 @@ La aplicación sigue una arquitectura cliente-servidor moderna:
 
 ## 📋 Requisitos
 
-- Python 3.10+
+- Node.js 16+
 - Docker y Docker Compose
 - MongoDB
 
@@ -75,10 +75,8 @@ cd encodergroup-app
 
 # Instalar dependencias del servidor
 cd server
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+npm install
+npm run dev
 
 # En otra terminal, instalar dependencias del cliente
 cd ../client-new
